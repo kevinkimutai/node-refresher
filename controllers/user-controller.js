@@ -1,6 +1,28 @@
 import User from "../models/user.js";
 import { AppError } from "../utils/AppMiddleware.js";
 import { catchAsync } from "../utils/catchAsync.js";
+import { filterKeys } from "../utils/filterFunction.js";
+
+export const UPDATEME = catchAsync(async (req, res, next) => {
+  if (req.body.password) {
+    return next(AppError("use /reset-passeword to change password", 400));
+  }
+
+  //You can only change fullname and email values
+  const filtered = filterKeys(req.body, ["fullname", "email"]);
+
+  console.log("FILTERED", filtered);
+
+  const user = await User.findByIdAndUpdate(req.user.id, filtered, {
+    new: true,
+    runValidators: true,
+  });
+
+  res.status(200).json({
+    status: "success",
+    data: user,
+  });
+});
 
 export const GETALLUSERS = catchAsync(async (req, res, next) => {
   const users = await User.find();
@@ -40,8 +62,14 @@ export const UPDATEUSER = catchAsync(async (req, res, next) => {
     return next(new AppError("Bad Request Missing Id parameter", 400));
   }
 
-    const user = await User.findByIdAndUpdate(id, req.body);
-    
+  //Admin can only change roles of users
+  const filtered = filterKeys(req.body, ["role"]);
+
+  const user = await User.findByIdAndUpdate(id, filtered, {
+    new: true,
+    runValidators: true,
+  });
+
   if (!user) {
     return next(new AppError("No user with that id", 404));
   }

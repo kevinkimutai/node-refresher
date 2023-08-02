@@ -3,6 +3,7 @@ import {
   DELETEUSER,
   GETALLUSERS,
   GETUSER,
+  UPDATEME,
   UPDATEUSER,
 } from "../controllers/user-controller.js";
 import {
@@ -12,6 +13,7 @@ import {
 
 const router = express.Router();
 
+router.route("/update-me").patch(AUTHPROTECTED, UPDATEME);
 router.route("/").get(AUTHPROTECTED, RESTRICTEDROUTE(["admin"]), GETALLUSERS);
 router
   .route("/:id")

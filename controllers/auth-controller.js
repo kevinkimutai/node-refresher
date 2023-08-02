@@ -160,3 +160,19 @@ export const RESETPASSWORD = catchAsync(async (req, res, next) => {
     status: "success",
   });
 });
+
+export const UPDATEPASSWORD = catchAsync(async (req, res, next) => {
+  const { id } = req.user;
+  const { password } = req.body;
+
+  const user = await User.findById(id);
+
+  if (!user) {
+    return next(new AppError("unauthorized,Log in", 401));
+  }
+
+  user.password = password;
+  await user.save();
+
+  res.status(200).json({ status: "success" });
+});

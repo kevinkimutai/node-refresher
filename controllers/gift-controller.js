@@ -52,7 +52,10 @@ export const UPDATEGIFT = catchAsync(async (req, res, next) => {
     return next(new AppError("Bad Request Missing Id parameter", 400));
   }
 
-  const gift = await Gift.findByIdAndUpdate(id, req.body);
+  const gift = await Gift.findByIdAndUpdate(id, req.body, {
+    new: true,
+    runValidators: true,
+  });
 
   res.status(201).json({
     status: "success",
