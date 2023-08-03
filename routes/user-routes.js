@@ -1,5 +1,6 @@
 import express from "express";
 import {
+  DELETEME,
   DELETEUSER,
   GETALLUSERS,
   GETUSER,
@@ -14,11 +15,12 @@ import {
 const router = express.Router();
 
 router.route("/update-me").patch(AUTHPROTECTED, UPDATEME);
-router.route("/").get(AUTHPROTECTED, RESTRICTEDROUTE(["admin"]), GETALLUSERS);
+router.route("/delete-me").delete(AUTHPROTECTED, DELETEME);
+router.route("/").get(AUTHPROTECTED, RESTRICTEDROUTE("admin"), GETALLUSERS);
 router
   .route("/:id")
-  .get(AUTHPROTECTED, RESTRICTEDROUTE(["admin"]), GETUSER)
-  .patch(AUTHPROTECTED, RESTRICTEDROUTE(["admin"]), UPDATEUSER)
-  .delete(AUTHPROTECTED, RESTRICTEDROUTE(["admin"]), DELETEUSER);
+  .get(AUTHPROTECTED, RESTRICTEDROUTE("admin"), GETUSER)
+  .patch(AUTHPROTECTED, RESTRICTEDROUTE("admin"), UPDATEUSER)
+  .delete(AUTHPROTECTED, RESTRICTEDROUTE("admin"), DELETEUSER);
 
 export default router;

@@ -16,12 +16,12 @@ import {
 router
   .route("/")
   .get(GETALLGIFTS)
-  .post(AUTHPROTECTED, RESTRICTEDROUTE(["admin"]), CREATEGIFT);
+  .post(AUTHPROTECTED, RESTRICTEDROUTE("admin"), CREATEGIFT);
 
 router
   .route("/:id")
   .get(GETGIFT)
-  .patch(AUTHPROTECTED, RESTRICTEDROUTE(["admin"]), UPDATEGIFT)
-  .delete(AUTHPROTECTED, RESTRICTEDROUTE(["admin"]), DELETEGIFT);
+  .patch(AUTHPROTECTED, RESTRICTEDROUTE("admin"), UPDATEGIFT)
+  .delete(AUTHPROTECTED, RESTRICTEDROUTE("admin"), DELETEGIFT);
 
 export default router;

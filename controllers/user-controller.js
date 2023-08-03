@@ -24,6 +24,14 @@ export const UPDATEME = catchAsync(async (req, res, next) => {
   });
 });
 
+export const DELETEME = catchAsync(async (req, res, next) => {
+  await User.findByIdAndUpdate(req.user.id, { active: false });
+
+  res.status(204).json({
+    status: "success",
+  });
+});
+
 export const GETALLUSERS = catchAsync(async (req, res, next) => {
   const users = await User.find();
 

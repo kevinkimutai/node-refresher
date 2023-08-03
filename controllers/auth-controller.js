@@ -12,6 +12,8 @@ export const SIGNUP = catchAsync(async (req, res, next) => {
 
   const user = await User.create({ fullname, email, password });
 
+  user.password = undefined;
+
   res.status(201).json({
     status: "success",
     data: {
@@ -34,6 +36,16 @@ export const LOGIN = catchAsync(async (req, res, next) => {
   }
 
   const accessToken = generateToken(user._id, user.role);
+
+  const cookieOptions = {
+    expires: new Date(
+      Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
+    ),
+    httpOnly: true,
+  };
+  if (process.env.NODE_ENV === "production") cookieOptions.secure = true;
+
+  res.cookie("jwt", accessToken, cookieOptions);
 
   res.status(200).json({
     status: "success",
@@ -75,6 +87,9 @@ export const AUTHPROTECTED = catchAsync(async (req, res, next) => {
 export const RESTRICTEDROUTE = (...allowedRoles) => {
   return (req, res, next) => {
     console.log("USER", req.user);
+    console.log("ALLOWED ROLES", allowedRoles);
+
+    console.log(allowedRoles.includes(req.user.role));
 
     if (!allowedRoles.includes(req.user.role)) {
       return next(new AppError("Forbidden,Login with proper rights", 403));
@@ -147,7 +162,7 @@ export const RESETPASSWORD = catchAsync(async (req, res, next) => {
   const user = await User.findOne({ resetToken: hashedToken });
 
   if (!user || user.resetTokenExpires < Date.now()) {
-    return next(new AppError("Unauthorised! Invalid/Expired token", 401));
+    return next(new AppError("Unauthorised! Invalid/Expired reset token", 401));
   }
 
   user.password = password;

@@ -25,6 +25,13 @@ const userSchema = new mongoose.Schema(
       default: "user",
       required: [true, "Missing full name field in user schema"],
     },
+
+    active: {
+      type: Boolean,
+      default: true,
+      required: [true, "The 'active' field is missing in the user schema"],
+    },
+
     resetToken: { type: String },
     resetTokenExpires: {},
   },
@@ -50,6 +57,13 @@ userSchema.pre("save", async function (next) {
 userSchema.methods.comparePasswords = function (userPass, dbPass) {
   return bcrypt.compareSync(userPass, dbPass);
 };
+
+// Only Get active Users
+userSchema.pre(/^find/, function (next) {
+  // this points to the current query
+  this.find({ active: { $ne: false } });
+  next();
+});
 
 //Generate and save Reset tokens
 userSchema.methods.generateResetToken = function () {
