@@ -20,7 +20,7 @@ export const GETGIFT = catchAsync(async (req, res, next) => {
   if (!id) {
     return next(new AppError("Bad Request Missing Id parameter", 400));
   }
-  const gift = await Gift.findById(id);
+  const gift = await Gift.findById(id).populate("reviews");
   if (!gift) {
     return next(new AppError("No Gift with that id", 404));
   }

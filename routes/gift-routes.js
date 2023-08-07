@@ -1,5 +1,4 @@
 import express from "express";
-const router = express.Router();
 
 import {
   GETALLGIFTS,
@@ -12,6 +11,13 @@ import {
   AUTHPROTECTED,
   RESTRICTEDROUTE,
 } from "../controllers/auth-controller.js";
+
+import reviewRouter from "./review-routes.js";
+
+const router = express.Router();
+
+//NESTED REVIEWS MIDDLEWARE
+router.use("/:giftId/reviews", reviewRouter);
 
 router
   .route("/")

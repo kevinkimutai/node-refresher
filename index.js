@@ -7,6 +7,8 @@ import helmet from "helmet";
 import giftRouter from "./routes/gift-routes.js";
 import authRouter from "./routes/auth-routes.js";
 import userRouter from "./routes/user-routes.js";
+import orderRouter from "./routes/order-routes.js";
+import reviewRouter from "./routes/review-routes.js";
 
 import dbConnect from "./db/dbConnect.js";
 import { errorHandler } from "./controllers/error-controller.js";
@@ -39,6 +41,8 @@ app.use("/api", limiter);
 app.use("/api/v1/gifts", giftRouter);
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/users", userRouter);
+app.use("/api/v1/orders", orderRouter);
+app.use("/api/v1/reviews", reviewRouter);
 
 //error middleware
 app.use(errorHandler);

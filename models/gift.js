@@ -40,13 +40,25 @@ const giftSchema = new mongoose.Schema(
       min: 1,
     },
   },
+  {
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
+  },
   { timestamps: true }
 );
 
+//indexing
 giftSchema.index({
   name: "text",
   category: "text",
   "description.text": "text",
+});
+
+// Virtual populate
+giftSchema.virtual("reviews", {
+  ref: "Review",
+  foreignField: "gift",
+  localField: "_id",
 });
 
 const Gift = mongoose.model("Gift", giftSchema);
