@@ -6,6 +6,7 @@ import {
   GETUSER,
   UPDATEME,
   UPDATEUSER,
+  GETME,
 } from "../controllers/user-controller.js";
 import {
   AUTHPROTECTED,
@@ -14,6 +15,7 @@ import {
 
 const router = express.Router();
 
+router.route("/me").get(AUTHPROTECTED, GETME, GETUSER);
 router.route("/update-me").patch(AUTHPROTECTED, UPDATEME);
 router.route("/delete-me").delete(AUTHPROTECTED, DELETEME);
 router.route("/").get(AUTHPROTECTED, RESTRICTEDROUTE("admin"), GETALLUSERS);

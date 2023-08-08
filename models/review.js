@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import Gift from "./gift.js";
 
 const reviewSchema = new mongoose.Schema(
   {
@@ -28,6 +29,30 @@ reviewSchema.pre(/^find/, function (next) {
   });
 
   next();
+});
+
+//Aggregate calculate avg ratings/Total Number of ratings
+reviewSchema.statics.calculateAvgRatings = async function (giftId) {
+  const stats = await this.aggregate([
+    { $match: { gift: giftId } },
+    {
+      $group: {
+        _id: `$gift`,
+        numRatings: { $sum: 1 },
+        avg: { $avg: `$rating` },
+      },
+    },
+  ]);
+
+  await Gift.findByIdAndUpdate(giftId, {
+    numRatings: stats[0].numRatings,
+    avgRatings: stats[0].avg,
+  });
+};
+
+//post method
+reviewSchema.post("save", async function () {
+  await this.constructor.calculateAvgRatings(this.gift);
 });
 
 const Review = mongoose.model("Review", reviewSchema);

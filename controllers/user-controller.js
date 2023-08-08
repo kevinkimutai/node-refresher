@@ -44,6 +44,12 @@ export const GETALLUSERS = catchAsync(async (req, res, next) => {
   });
 });
 
+export const GETME = catchAsync(async (req, res, next) => {
+  req.params.id = req.user.id;
+
+  next();
+});
+
 export const GETUSER = catchAsync(async (req, res, next) => {
   const { id } = req.params;
 

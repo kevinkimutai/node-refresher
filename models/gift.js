@@ -29,16 +29,19 @@ const giftSchema = new mongoose.Schema(
       required: [true, "missing image field in gift schema"],
     },
 
-    numOrders: {
-      type: Number,
-
-      min: 0,
-    },
+    orders: [
+      {
+        order: { type: mongoose.Schema.Types.ObjectId, ref: "Order" },
+        quantity: { type: Number },
+      },
+    ],
     countInStock: {
       type: Number,
       required: [true, "missing stock number field in gift schema"],
       min: 1,
     },
+    avgRatings: { type: Number },
+    numRatings: { type: Number },
   },
   {
     toJSON: { virtuals: true },
@@ -50,8 +53,6 @@ const giftSchema = new mongoose.Schema(
 //indexing
 giftSchema.index({
   name: "text",
-  category: "text",
-  "description.text": "text",
 });
 
 // Virtual populate
