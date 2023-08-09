@@ -16,6 +16,15 @@ const orderSchema = new mongoose.Schema(
         },
       },
     ],
+    totalPrice: {
+      type: Number,
+      required: [true, "Missing totalPrice field in user schema"],
+    },
+    status: {
+      type: String,
+      default: "pending",
+      required: [true, "Missing status field in order schema"],
+    },
   },
   { timestamps: true }
 );
@@ -30,7 +39,7 @@ orderSchema.pre(/^find/, function (next) {
 
   this.populate({
     path: "order.gift",
-    select: "-description -image -countInStock -createdAt -updatedAt",
+    select: "-countInStock -createdAt -updatedAt",
   });
 
   next();

@@ -1,19 +1,79 @@
+import { stripePkg } from "../index.js";
+import Gift from "../models/gift.js";
 import Order from "../models/order.js";
+import User from "../models/user.js";
 // import User from "../models/user.js";
 import { AppError } from "../utils/AppMiddleware.js";
 import { catchAsync } from "../utils/catchAsync.js";
-// import { filterKeys } from "../utils/filterFunction.js";
+
+// import{ filterKeys } from "../utils/filterFunction.js";
+
+export const GETCHECKOUTSESSION = catchAsync(async (req, res, next) => {
+  //get gift
+  const order = await Order.findById(req.order.id);
+  const user = await User.findById(req.user.id);
+
+  const orderData = order.order.map((item) => ({
+    price_data: {
+      currency: "kes",
+      product_data: {
+        name: item.gift.name, // Use item.gift instead of gift
+        description: item.gift.description.text.split(",")[0],
+        images: [item.gift.image],
+      },
+      unit_amount: item.gift.price * 100,
+    },
+    quantity: item.quantity,
+  }));
+
+  //TODO:CREATE F/E  SUCCESS AND CANCEL URLS
+  const session = await stripePkg.checkout.sessions.create({
+    line_items: orderData,
+    success_url: `${req.protocol}://${req.get("host")}/user/${user._id}/order/`,
+    cancel_url: `${req.protocol}://${req.get("host")}/gift`,
+    customer_email: user.email,
+    client_reference_id: req.params.giftId,
+    payment_method_types: ["card"],
+    mode: "payment",
+  });
+
+  res.redirect(303, session.url);
+});
 
 export const CREATEORDER = catchAsync(async (req, res, next) => {
-  const order = await Order.create(req.body);
+  const userId = req.user.id;
+  const { order, totalPrice } = req.body;
 
-  res.status(201).json({
-    status: "success",
-    items: order.length,
-    data: {
-      order,
-    },
+  if (!order || !totalPrice) {
+    return next(new AppError("Bad Request Missing  parameters", 400));
+  }
+
+  for (const item of order) {
+    const gift = await Gift.findById(item.gift);
+
+    if (!gift) {
+      return next(new AppError("Gift not found", 404));
+    }
+
+    if (item.quantity > gift.countInStock) {
+      return next(
+        new AppError("Not enough stock for the requested quantity", 400)
+      );
+    }
+
+    gift.countInStock -= item.quantity;
+    // console.log(`Gift countInStock after: ${gift.countInStock}`);
+    await gift.save();
+  }
+
+  const newOrder = await Order.create({
+    user: userId,
+    ...req.body,
   });
+
+  req.order = { id: newOrder._id };
+
+  next();
 });
 
 export const GETALLORDERS = catchAsync(async (req, res, next) => {

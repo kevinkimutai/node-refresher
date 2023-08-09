@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import rateLimit from "express-rate-limit";
 import morgan from "morgan";
 import helmet from "helmet";
+import stripe from "stripe";
 
 import giftRouter from "./routes/gift-routes.js";
 import authRouter from "./routes/auth-routes.js";
@@ -16,6 +17,8 @@ import { errorHandler } from "./controllers/error-controller.js";
 dotenv.config();
 
 const app = express();
+
+export const stripePkg = stripe(process.env.STRIPE_SECRET_KEY);
 
 //Rate Limiting
 const limiter = rateLimit({
